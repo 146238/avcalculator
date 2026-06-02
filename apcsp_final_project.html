@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ultimate Aviation Performance & Flight Desk Suite</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #eef3f8;
+        padding: 20px;
+        max-width: 1000px;
+        margin: auto;
+    }
+    select, input, button {
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    button {
+        background: #0056b3;
+        color: white;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    button:hover {
+        background: #004494;
+    }
+    .box {
+        margin-top: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background: #d9e6f2;
+    }
+    .badge {
+        background: #e1ecf4;
+        color: #39739d;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .fr-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+        color: white;
+    }
+    .vfr  { background: #28a745; }
+    .mvfr { background: #007bff; }
+    .ifr  { background: #dc3545; }
+    .lifr { background: #6f42c1; }
+    .section-title {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #495057;
+        border-bottom: 2px solid #eef3f8;
+        padding-bottom: 5px;
+    }
+    .metar-string {
+        background: #f8f9fa;
+        border-left: 4px solid #17a2b8;
+        padding: 8px;
+        font-family: monospace;
+        font-size: 13px;
+        margin-top: 5px;
+        word-break: break-all;
+    }
+    .decoder-box {
+        background: #f1f8f9;
+        border: 1px dashed #17a2b8;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+    .decoder-item {
+        margin-bottom: 4px;
+    }
+    .aircraft-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        font-size: 14px;
+        color: #333;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    .clear-btn { background: #dc3545; }
+    .clear-btn:hover { background: #c82333; }
+</style>
+<script>
+const aircraftData = {
+    "Airbus A300": { category: "Wide-body", passengers: 266, range: 7500, min: 120000, max: 170000, baseRoll: 2300, emptyWeight: 90000, maxPayload: 43000, avgBurnPerHour: 4800, cgEmpty: 25 },
+    "Airbus A310": { category: "Wide-body", passengers: 280, range: 6800, min: 120000, max: 164000, baseRoll: 2200, emptyWeight: 80000, maxPayload: 37000, avgBurnPerHour: 4400, cgEmpty: 24 },
+    "Airbus A318": { category: "Narrow-body", passengers: 132, range: 5700, min: 39000, max: 68000, baseRoll: 1780, emptyWeight: 39500, maxPayload: 15000, avgBurnPerHour: 2200, cgEmpty: 22 },
+    "Airbus A319": { category: "Narrow-body", passengers: 160, range: 6850, min: 42000, max: 75000, baseRoll: 1850, emptyWeight: 40800, maxPayload: 17700, avgBurnPerHour: 2400, cgEmpty: 23 },
+    "Airbus A319neo": { category: "Narrow-body", passengers: 160, range: 6850, min: 44000, max: 77000, baseRoll: 1800, emptyWeight: 42000, maxPayload: 17700, avgBurnPerHour: 2100, cgEmpty: 23 },
+    "Airbus A320": { category: "Narrow-body", passengers: 180, range: 6150, min: 42000, max: 73500, baseRoll: 1950, emptyWeight: 42600, maxPayload: 18600, avgBurnPerHour: 2500, cgEmpty: 24 },
+    "Airbus A320neo": { category: "Narrow-body", passengers: 186, range: 6850, min: 45000, max: 79000, baseRoll: 1900, emptyWeight: 44300, maxPayload: 20000, avgBurnPerHour: 2200, cgEmpty: 24 },
+    "Airbus A321": { category: "Narrow-body", passengers: 220, range: 5950, min: 50000, max: 93500, baseRoll: 2180, emptyWeight: 48500, maxPayload: 25300, avgBurnPerHour: 2900, cgEmpty: 25 },
+    "Airbus A321neo": { category: "Narrow-body", passengers: 244, range: 7400, min: 52000, max: 97000, baseRoll: 2100, emptyWeight: 50100, maxPayload: 27000, avgBurnPerHour: 2500, cgEmpty: 25 },
+    "Airbus A330-200": { category: "Wide-body", passengers: 246, range: 13450, min: 120000, max: 233000, baseRoll: 2770, emptyWeight: 119600, maxPayload: 36400, avgBurnPerHour: 5600, cgEmpty: 26 },
+    "Airbus A330-300": { category: "Wide-body", passengers: 277, range: 11750, min: 120000, max: 242000, baseRoll: 2500, emptyWeight: 124500, maxPayload: 45900, avgBurnPerHour: 5800, cgEmpty: 26 },
+    "Airbus A340-300": { category: "Wide-body", passengers: 277, range: 13500, min: 130000, max: 276000, baseRoll: 3000, emptyWeight: 130200, maxPayload: 43500, avgBurnPerHour: 6500, cgEmpty: 27 },
+    "Airbus A340-600": { category: "Wide-body", passengers: 320, range: 14400, min: 177000, max: 368000, baseRoll: 3100, emptyWeight: 177000, maxPayload: 55600, avgBurnPerHour: 8000, cgEmpty: 28 },
+    "Airbus A350-900": { category: "Wide-body", passengers: 300, range: 15000, min: 130000, max: 280000, baseRoll: 2600, emptyWeight: 134700, maxPayload: 53300, avgBurnPerHour: 5400, cgEmpty: 26 },
+    "Airbus A350-1000": { category: "Wide-body", passengers: 350, range: 16100, min: 145000, max: 316000, baseRoll: 2770, emptyWeight: 155000, maxPayload: 64300, avgBurnPerHour: 6100, cgEmpty: 27 },
+    "Airbus A380-800": { category: "Superjumbo", passengers: 850, range: 15200, min: 275000, max: 560000, baseRoll: 2900, emptyWeight: 277000, maxPayload: 84000, avgBurnPerHour: 12000, cgEmpty: 29 },
+    "Airbus A220-100": { category: "Narrow-body", passengers: 135, range: 6300, min: 35000, max: 60000, baseRoll: 1460, emptyWeight: 35220, maxPayload: 15120, avgBurnPerHour: 1600, cgEmpty: 21 },
+    "Airbus A220-300": { category: "Narrow-body", passengers: 160, range: 6700, min: 37000, max: 63000, baseRoll: 1890, emptyWeight: 37080, maxPayload: 18730, avgBurnPerHour: 1800, cgEmpty: 22 },
+
+    // Boeing
+    "Boeing 707": { category: "Classic Jet", passengers: 189, range: 6820, min: 88000, max: 151000, baseRoll: 3280, emptyWeight: 67300, maxPayload: 28000, avgBurnPerHour: 6200, cgEmpty: 25 },
+    "Boeing 717": { category: "Narrow-body", passengers: 134, range: 3820, min: 39000, max: 50500, baseRoll: 1950, emptyWeight: 30600, maxPayload: 14500, avgBurnPerHour: 2100, cgEmpty: 23 },
+    "Boeing 727-200": { category: "Narrow-body", passengers: 155, range: 4400, min: 45000, max: 95000, baseRoll: 2500, emptyWeight: 46700, maxPayload: 18100, avgBurnPerHour: 4300, cgEmpty: 24 },
+    "Boeing 737-100": { category: "Narrow-body", passengers: 85, range: 2850, min: 28000, max: 49000, baseRoll: 2050, emptyWeight: 28100, maxPayload: 10100, avgBurnPerHour: 2200, cgEmpty: 21 },
+    "Boeing 737-200": { category: "Narrow-body", passengers: 115, range: 3700, min: 45000, max: 58500, baseRoll: 1990, emptyWeight: 31600, maxPayload: 15500, avgBurnPerHour: 2400, cgEmpty: 22 },
+    "Boeing 737-800": { category: "Narrow-body", passengers: 189, range: 5765, min: 41000, max: 79000, baseRoll: 2450, emptyWeight: 41400, maxPayload: 21300, avgBurnPerHour: 2500, cgEmpty: 23 },
+    "Boeing 737 MAX 8": { category: "Narrow-body", passengers: 210, range: 6570, min: 42000, max: 82000, baseRoll: 2500, emptyWeight: 45070, maxPayload: 22800, avgBurnPerHour: 2150, cgEmpty: 23 },
+    "Boeing 747-400": { category: "Jumbo", passengers: 416, range: 13450, min: 180000, max: 396000, baseRoll: 3045, emptyWeight: 178800, maxPayload: 65000, avgBurnPerHour: 10200, cgEmpty: 28 },
+    "Boeing 747-8I": { category: "Jumbo", passengers: 467, range: 14300, min: 220000, max: 447000, baseRoll: 3090, emptyWeight: 220100, maxPayload: 76000, avgBurnPerHour: 9800, cgEmpty: 29 },
+    "Boeing 757-200": { category: "Narrow-body", passengers: 200, range: 7200, min: 58000, max: 115000, baseRoll: 2000, emptyWeight: 58390, maxPayload: 25000, avgBurnPerHour: 3400, cgEmpty: 24 },
+    "Boeing 767-300ER": { category: "Wide-body", passengers: 269, range: 11000, min: 90000, max: 186000, baseRoll: 2500, emptyWeight: 90000, maxPayload: 43800, avgBurnPerHour: 4700, cgEmpty: 25 },
+    "Boeing 777-200ER": { category: "Wide-body", passengers: 301, range: 13000, min: 138000, max: 297000, baseRoll: 2600, emptyWeight: 138100, maxPayload: 54000, avgBurnPerHour: 6200, cgEmpty: 26 },
+    "Boeing 777-300ER": { category: "Wide-body", passengers: 396, range: 13650, min: 167000, max: 351000, baseRoll: 3050, emptyWeight: 167800, maxPayload: 69800, avgBurnPerHour: 7500, cgEmpty: 27 },
+    "Boeing 787-9": { category: "Wide-body", passengers: 296, range: 14140, min: 119000, max: 254000, baseRoll: 2800, emptyWeight: 115400, maxPayload: 52500, avgBurnPerHour: 4900, cgEmpty: 26 },
+
+    // Embraer
+    "Embraer E170": { category: "Regional Jet", passengers: 72, range: 3900, min: 21000, max: 37000, baseRoll: 1644, emptyWeight: 21140, maxPayload: 9100, avgBurnPerHour: 1200, cgEmpty: 20 },
+    "Embraer E175": { category: "Regional Jet", passengers: 76, range: 4000, min: 22000, max: 38000, baseRoll: 2244, emptyWeight: 21810, maxPayload: 10080, avgBurnPerHour: 1300, cgEmpty: 20 },
+    "Embraer E190": { category: "Regional Jet", passengers: 100, range: 4500, min: 28000, max: 51000, baseRoll: 2044, emptyWeight: 28080, maxPayload: 13080, avgBurnPerHour: 1700, cgEmpty: 21 },
+
+    // Bombardier / CRJ
+    "Bombardier CRJ-200": { category: "Regional Jet", passengers: 50, range: 3100, min: 14000, max: 24000, baseRoll: 1900, emptyWeight: 14000, maxPayload: 6100, avgBurnPerHour: 1100, cgEmpty: 19 },
+    "Bombardier CRJ-700": { category: "Regional Jet", passengers: 78, range: 2500, min: 20000, max: 34000, baseRoll: 1600, emptyWeight: 20000, maxPayload: 8500, avgBurnPerHour: 1500, cgEmpty: 20 },
+    "Bombardier CRJ-900": { category: "Regional Jet", passengers: 90, range: 2800, min: 21000, max: 38000, baseRoll: 1770, emptyWeight: 21500, maxPayload: 10350, avgBurnPerHour: 1650, cgEmpty: 20 },
+
+    // McDonnell Douglas
+    "McDonnell Douglas MD-80": { category: "Narrow-body", passengers: 155, range: 2900, min: 35000, max: 63000, baseRoll: 2200, emptyWeight: 35300, maxPayload: 17700, avgBurnPerHour: 3200, cgEmpty: 24 },
+    "McDonnell Douglas MD-11": { category: "Wide-body", passengers: 298, range: 12200, min: 130000, max: 286000, baseRoll: 2900, emptyWeight: 130100, maxPayload: 52200, avgBurnPerHour: 7100, cgEmpty: 27 },
+    "McDonnell Douglas DC-10": { category: "Wide-body", passengers: 250, range: 9600, min: 108000, max: 259000, baseRoll: 2700, emptyWeight: 108900, maxPayload: 46200, avgBurnPerHour: 7400, cgEmpty: 26 },
+
+    // Turboprops
+    "ATR 42-600": { category: "Turboprop", passengers: 48, range: 1300, min: 10000, max: 18600, baseRoll: 1100, emptyWeight: 11700, maxPayload: 5300, avgBurnPerHour: 650, cgEmpty: 18 },
+    "ATR 72-600": { category: "Turboprop", passengers: 70, range: 1500, min: 13000, max: 23000, baseRoll: 1300, emptyWeight: 13500, maxPayload: 7500, avgBurnPerHour: 800, cgEmpty: 19 },
+    "De Havilland Dash 8-Q400": { category: "Turboprop", passengers: 78, range: 2000, min: 17000, max: 29000, baseRoll: 1400, emptyWeight: 17800, maxPayload: 8600, avgBurnPerHour: 1100, cgEmpty: 19 }
+};
+
+window.onload = function() { init(); }
+
+function init() {
+    let selectHTML = `<option value="">-- Select an Aircraft --</option>`;
+    for (let name in aircraftData) { selectHTML += `<option value="${name}">${name}</option>`; }
+    document.getElementById("airliners").innerHTML = selectHTML;
+    renderReferenceTable("");
+    updateLogTable();
+}
+
+function renderReferenceTable(filterText) {
+    let query = filterText.toLowerCase();
+    let tableHTML = `<table><tr><th>Aircraft</th><th>Category</th><th>Passengers</th><th>Range (km)</th><th>Max Wt (kg)</th></tr>`;
+    for (let name in aircraftData) {
+        if (name.toLowerCase().includes(query) || aircraftData[name].category.toLowerCase().includes(query)) {
+            let d = aircraftData[name];
+            tableHTML += `<tr><td><b>${name}</b></td><td><span class="badge">${d.category}</span></td><td>${d.passengers}</td><td>${d.range}</td><td>${d.max}</td></tr>`;
+        }
+    }
+    document.getElementById("table").innerHTML = tableHTML + "</table>";
+}
+
+async function fetchAirportWeather() {
+    let icao = document.getElementById("icaoInput").value.trim().toUpperCase();
+    let statusBox = document.getElementById("metarStatus");
+    let rawBox = document.getElementById("metarRawBox");
+    
+    if (icao.length !== 4) { statusBox.innerHTML = "<span style='color:red;'>ICAO codes must be exactly 4 letters.</span>"; return; }
+    
+    statusBox.innerHTML = "Fetching live weather strings...";
+    rawBox.innerHTML = "";
+    
+    try {
+        let response = await fetch(`https://metar.vatsim.net/metar.php?id=${icao}`);
+        if (!response.ok) throw new Error("Station not found");
+        let metar = await response.text();
+        metar = metar.trim();
+        if (!metar || metar.includes("No METAR available") || metar.length < 10) throw new Error("No data available");
+        
+        rawBox.innerHTML = `<b>Raw METAR:</b><div class="metar-string">${metar}</div>`;
+        statusBox.innerHTML = "<span style='color:green;'>Data synced successfully!</span>";
+        parseAndDecodeMetar(metar);
+    } catch (error) {
+        statusBox.innerHTML = "<span style='color:red;'>Failed to find airport weather. Ensure ICAO is correct (e.g., KJFK, EGLL).</span>";
+    }
+}
+
+function parseAndDecodeMetar(metar) {
+    let windText = "Variable or Calm", visibilityText = "Not specified / CAVOK", tempDewText = "Unknown", pressureText = "Unknown", cloudText = "Sky Clear / No Significant Clouds";
+    let visibilityMiles = 10, lowestCeilingFeet = 99999; 
+
+    let windMatch = metar.match(/(\d{3}|\/\/\/|VRB)(\d{2})(G\d{2})?KT/);
+    if (windMatch) {
+        let dir = windMatch[1];
+        let speed = parseInt(windMatch[2], 10);
+        document.getElementById("windDirection").value = (dir === "VRB" || dir === "///") ? 0 : parseInt(dir, 10);
+        document.getElementById("windSpeed").value = speed;
+        windText = `${dir}° at ${speed} knots`;
+        if (windMatch[3]) windText += ` (Gusting to ${windMatch[3].substring(1)} knots)`;
+    }
+
+    let visMatch = metar.match(/(\s\d{4}\s|\s\d\/\dSM|\s\d{1,2}SM)/);
+    if (visMatch) {
+        let rawVis = visMatch[1].trim();
+        if (rawVis.includes("SM")) {
+            let numValue = rawVis.replace("SM", "");
+            visibilityMiles = numValue.includes("/") ? 0.5 : parseFloat(numValue);
+            visibilityText = `${rawVis.replace("SM", "")} Statute Miles`;
+        } else {
+            let meters = parseInt(rawVis, 10);
+            visibilityMiles = meters / 1609.34;
+            visibilityText = (meters === 9999) ? "10+ km (Greater than 9000m)" : `${meters} meters`;
+        }
+    } else if (metar.includes("CAVOK")) {
+        visibilityText = "Greater than 10 km, Sky Clear (CAVOK)";
+    }
+
+    let cloudLayers = [];
+    let cloudRegex = /(FEW|SCT|BKN|OVC|VV)(\d{3})/g;
+    let match;
+    while ((match = cloudRegex.exec(metar)) !== null) {
+        let type = match[1], height = parseInt(match[2], 10) * 100, typeFull = "";
+        if(type === "FEW") typeFull = "Few Clouds";
+        if(type === "SCT") typeFull = "Scattered Clouds";
+        if(type === "BKN") { typeFull = "Broken Ceiling"; if(height < lowestCeilingFeet) lowestCeilingFeet = height; }
+        if(type === "OVC") { typeFull = "Overcast Sky"; if(height < lowestCeilingFeet) lowestCeilingFeet = height; }
+        if(type === "VV") { typeFull = "Vertical Visibility"; if(height < lowestCeilingFeet) lowestCeilingFeet = height; }
+        cloudLayers.push(`${typeFull} at ${height} ft`);
+    }
+    if(cloudLayers.length > 0) cloudText = cloudLayers.join(", ");
+
+    let flightRules = "VFR", frClass = "vfr";
+    if (visibilityMiles < 1 || lowestCeilingFeet < 500) { flightRules = "LIFR"; frClass = "lifr"; }
+    else if (visibilityMiles < 3 || lowestCeilingFeet < 1000) { flightRules = "IFR"; frClass = "ifr"; }
+    else if (visibilityMiles <= 5 || lowestCeilingFeet <= 3000) { flightRules = "MVFR"; frClass = "mvfr"; }
+
+    let tempMatch = metar.match(/(M?\d{2})\/(M?\d{2})/);
+    if (tempMatch) {
+        let celcius = tempMatch[1].startsWith("M") ? -parseInt(tempMatch[1].substring(1), 10) : parseInt(tempMatch[1], 10);
+        document.getElementById("howHot").value = celcius;
+        tempDewText = `Air Temp: ${celcius}°C | Dewpoint: ${tempMatch[2].startsWith("M") ? -parseInt(tempMatch[2].substring(1),10) : parseInt(tempMatch[2],10)}°C`;
+    }
+
+    let altimeterMatch = metar.match(/A(\d{4})/), qnhMatch = metar.match(/Q(\d{4})/);
+    if (qnhMatch) {
+        let qnhValue = parseInt(qnhMatch[1], 10);
+        document.getElementById("pressureInput").value = qnhValue;
+        document.getElementById("utilHpa").value = qnhValue;
+        syncPressureFromHpa();
+        pressureText = `${qnhValue} hPa`;
+    } else if (altimeterMatch) {
+        let altValue = parseInt(altimeterMatch[1], 10) / 100;
+        let hpa = Math.round(altValue * 33.8639);
+        document.getElementById("pressureInput").value = hpa;
+        document.getElementById("utilInhg").value = altValue.toFixed(2);
+        syncPressureFromInhg();
+        pressureText = `${altValue.toFixed(2)} inHg (~${hpa} hPa)`;
+    }
+
+    document.getElementById("metarRawBox").innerHTML += `
+        <div class="decoder-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #17a2b8; text-transform: uppercase;">Live METAR Decoder</span>
+                <span class="fr-badge ${frClass}">${flightRules}</span>
+            </div>
+            <div class="decoder-item">💨 <b>Wind Vector:</b> ${windText}</div>
+            <div class="decoder-item">👁️ <b>Visibility:</b> ${visibilityText}</div>
+            <div class="decoder-item">☁️ <b>Sky Conditions:</b> ${cloudText}</div>
+            <div class="decoder-item">🌡️ <b>Temperature Matrix:</b> ${tempDewText}</div>
+            <div class="decoder-item">⏲️ <b>Altimeter Matrix:</b> ${pressureText}</div>
+        </div>
+    `;
+    calculateWindVectors(); 
+}
+
+function calculateWindVectors() {
+    let heading = Number(document.getElementById("runwayHeading").value) || 0;
+    let windDir = Number(document.getElementById("windDirection").value) || 0;
+    let windSpeed = Number(document.getElementById("windSpeed").value) || 0;
+    let outputBox = document.getElementById("windComponentOutput");
+
+    if(!windSpeed) return outputBox.innerHTML = "";
+
+    let angleRad = (windDir - heading) * (Math.PI / 180);
+    let headwind = Math.round(windSpeed * Math.cos(angleRad));
+    let crosswind = Math.round(windSpeed * Math.sin(angleRad));
+
+    let headwindText = headwind >= 0 ? `🟩 Headwind Component: <b>${headwind} kt</b>` : `⚠️ Tailwind Component: <b>${Math.abs(headwind)} kt</b>`;
+    let crosswindSide = crosswind >= 0 ? "from the Right" : "from the Left";
+    
+    outputBox.innerHTML = `
+        <div style="margin-top: 8px; padding: 8px; font-size: 12px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
+            ${headwindText}<br>
+            Crosswind Component: <b>${Math.abs(crosswind)} kt</b> (${crosswindSide})
+        </div>
+    `;
+}
+
+function updateAircraftInfo() {
+    let name = document.getElementById("airliners").value;
+    let spot = document.getElementById("spot1");
+    if (!name || !aircraftData[name]) return spot.innerHTML = "";
+    
+    let d = aircraftData[name];
+    let estMaxFuel = d.max - d.emptyWeight; 
+    
+    spot.innerHTML = `
+        <div class="aircraft-stats-grid">
+            <div><b>Aircraft:</b> ${name}</div>
+            <div><b>Category:</b> ${d.category}</div>
+            <div><b>Passengers:</b> <span style="color:#0056b3;">${d.passengers}</span></div>
+            <div><b>Max Range:</b> <span style="color:#0056b3;">${d.range} km</span></div>
+            <div><b>Operating Empty:</b> ${d.emptyWeight} kg</div>
+            <div><b>Max Takeoff:</b> ${d.max} kg</div>
+            <div><b>Max Payload:</b> ${d.maxPayload} kg</div>
+            <div><b>Est. Max Fuel:</b> <span style="color:#0056b3;">${estMaxFuel} kg</span></div>
+        </div>
+    `;
+    document.getElementById("emptyWeightWB").value = d.emptyWeight;
+    document.getElementById("paxCount").value = Math.round(d.passengers * 0.7);
+    calculatePayload(); 
+}
+
+function calculateSpeeds() {
+    let name = document.getElementById("airliners").value;
+    let d = aircraftData[name];
+    let out = document.getElementById("speedsOut");
+
+    if (!name || !d) return out.innerHTML = "<span style='color:red;'>Select an aircraft from the top dropdown first.</span>";
+    let weight = Number(document.getElementById("howHeavy").value) || 0;
+    let temp = Number(document.getElementById("howHot").value) || 15; 
+    let heading = Number(document.getElementById("runwayHeading").value) || 0;
+    let windDir = Number(document.getElementById("windDirection").value) || 0;
+    let windSpeed = Number(document.getElementById("windSpeed").value) || 0;
+    let pressure = Number(document.getElementById("pressureInput").value) || 1013; 
+
+    let angleRad = (windDir - heading) * (Math.PI / 180);
+    let headwind = Math.round(windSpeed * Math.cos(angleRad)); 
+
+    let pressureFactor = (1013 - pressure) * 0.05; 
+    let windImpactOnSpeed = headwind > 0 ? -(headwind * 0.2) : -(headwind * 0.5); 
+
+    let base = 130 + Math.round(weight / 5100) + Math.round(temp * 0.12) + Math.round(pressureFactor + windImpactOnSpeed);
+    let v1 = base; let vr = base + 4; let v2 = base + 9;
+
+    let takeoffDist = Math.round(d.baseRoll * (weight / d.max) * (1 + (temp * 0.006) + ((1013 - pressure) * 0.001)) * (headwind > 0 ? (1 - (headwind * 0.015)) : (1 - (headwind * 0.025))));
+
+    out.innerHTML = `
+        <div style="background: #e1ecf4; padding: 10px; border-radius: 4px; border: 1px solid #39739d; font-size:14px;">
+            <b>Takeoff Metrics (${temp}°C / ${pressure} hPa)</b><br>
+            <b>V1:</b> ${v1} kt | <b>VR:</b> ${vr} kt | <b>V2:</b> ${v2} kt<br>
+            <b>Est. Runway Ground Roll:</b> ${takeoffDist} meters
+        </div>
+    `;
+    saveFlightLog(name, weight, temp, v1, vr, v2, takeoffDist);
+}
+
+function calculatePayload() {
+    let name = document.getElementById("airliners").value;
+    let d = aircraftData[name];
+    if (!d) return;
+    let totalPayload = ((Number(document.getElementById("paxCount").value) || 0) * 84) + (Number(document.getElementById("cargoWeight").value) || 0);
+    document.getElementById("payloadOut").innerHTML = `Calculated Payload: <b>${totalPayload} kg</b> / ${d.maxPayload} kg Limit (${totalPayload > d.maxPayload ? '<span style="color:red;">OVERLOAD</span>' : '<span style="color:green;">Safe</span>'})`;
+    calculateWeightBalance();
+}
+
+function calculateWeightBalance() {
+    let name = document.getElementById("airliners").value;
+    let d = aircraftData[name];
+    if (!d) return;
+    
+    let emptyW = Number(document.getElementById("emptyWeightWB").value) || d.emptyWeight;
+    let payloadW = ((Number(document.getElementById("paxCount").value) || 0) * 84) + (Number(document.getElementById("cargoWeight").value) || 0);
+    let fuelW = Number(document.getElementById("fuelWeightWB").value) || 0;
+    
+    let zfw = emptyW + payloadW;
+    let tow = zfw + fuelW;
+    
+    document.getElementById("howHeavy").value = tow;
+    document.getElementById("landingWeight").value = zfw + (fuelW * 0.25); // Estimated landing weight
+    
+    let finalCG = (((emptyW * d.cgEmpty) + (payloadW * (d.cgEmpty + 2.5)) + (fuelW * (d.cgEmpty + 0.5))) / tow).toFixed(2);
+    
+    document.getElementById("wbOut").innerHTML = `
+        <table style="text-align: left; background: #fff; margin-top: 5px;">
+            <tr><td><b>ZFW:</b></td><td><b>${zfw} kg</b></td></tr>
+            <tr><td><b>TOW:</b></td><td style="color:#28a745;"><b>${tow} kg</b> / ${d.max} kg Max</td></tr>
+            <tr><td><b>CG:</b></td><td style="color:#0056b3;"><b>${finalCG}% MAC</b></td></tr>
+        </table>
+    `;
+}
+
+function calculateFuelBurn() {
+    let name = document.getElementById("airliners").value;
+    let d = aircraftData[name];
+    let dist = Number(document.getElementById("tripDistance").value) || 0;
+    let speed = Number(document.getElementById("groundSpeed").value) || 450; 
+    let altDist = Number(document.getElementById("altDistance").value) || 0;
+    
+    let taxiFuel = Number(document.getElementById("taxiFuelInput").value) || 200;
+    let holdingMin = Number(document.getElementById("holdingMinInput").value) || 30;
+    let extraFuel = Number(document.getElementById("extraFuelInput").value) || 0;
+
+    if (!d || !dist) return document.getElementById("fuelBurnOut").innerHTML = "<span style='color:red;'>Select an aircraft and enter trip distance.</span>";
+    
+    let flightHours = dist / (speed * 1.852);
+    let tripFuel = Math.round(flightHours * d.avgBurnPerHour);
+    let contingencyFuel = Math.round(tripFuel * 0.05); 
+    let altHours = altDist / (speed * 1.852);
+    let alternateFuel = Math.round(altHours * d.avgBurnPerHour);
+    let finalReserveFuel = Math.round((45 / 60) * d.avgBurnPerHour); 
+    let holdingFuel = Math.round((holdingMin / 60) * d.avgBurnPerHour);
+    
+    let minTakeoffFuel = tripFuel + contingencyFuel + alternateFuel + finalReserveFuel + holdingFuel + extraFuel;
+    let blockFuel = minTakeoffFuel + taxiFuel;
+
+    document.getElementById("fuelWeightWB").value = blockFuel;
+
+    document.getElementById("fuelBurnOut").innerHTML = `
+        <div style="background: #f1f8f9; padding: 12px; border-radius: 5px; border: 1px solid #17a2b8; margin-top: 10px;">
+            <table style="text-align: left; font-size: 13px;">
+                <tr><td><b>Trip Burn:</b></td><td>${tripFuel} kg</td></tr>
+                <tr><td><b>Contingency (5%):</b></td><td>${contingencyFuel} kg</td></tr>
+                <tr><td><b>Alternate:</b></td><td>${alternateFuel} kg</td></tr>
+                <tr><td><b>Reserve (45m):</b></td><td>${finalReserveFuel} kg</td></tr>
+                <tr><td><b>Holding/Extra:</b></td><td>${holdingFuel + extraFuel} kg</td></tr>
+                <tr style="background: #d9e6f2;"><td><b>BLOCK FUEL:</b></td><td><b>${blockFuel} kg</b></td></tr>
+            </table>
+        </div>
+    `;
+    calculateWeightBalance(); 
+}
+
+// ---- NEW: Descent & Landing Calculator ----
+function calculateDescent() {
+    let cruise = Number(document.getElementById("cruiseAlt").value) || 35000;
+    let target = Number(document.getElementById("targetAlt").value) || 3000;
+    let gs = Number(document.getElementById("descentGs").value) || 400;
+    let rate = Number(document.getElementById("descentRate").value) || 2000;
+    let weight = Number(document.getElementById("landingWeight").value) || 60000;
+
+    let altToLose = cruise - target;
+    if(altToLose <= 0) return document.getElementById("descentOut").innerHTML = "<span style='color:red'>Target altitude must be lower than cruise.</span>";
+
+    let todDistance = (altToLose / 1000) * 3; // 3-degree rule of thumb
+    let timeMin = altToLose / rate;
+    let actualDistance = (timeMin / 60) * gs;
+
+    let vref = 110 + Math.round(weight / 2500); // generic baseline
+    let ldgDist = Math.round((weight * 0.02) + 800);
+
+    document.getElementById("descentOut").innerHTML = `
+        <div style="background: #e1ecf4; padding: 10px; border-radius: 4px; border: 1px solid #39739d; font-size:14px; margin-top:10px;">
+            <b>Top of Descent (TOD):</b> ${todDistance.toFixed(1)} nm (3° path) or ${actualDistance.toFixed(1)} nm (at ${rate} fpm).<br>
+            <b>Time to Descend:</b> ${timeMin.toFixed(1)} minutes.<br>
+            <hr style="border:0; border-top:1px dashed #ccc; margin:8px 0;">
+            <b>Est. Landing Vref:</b> ${vref} kts<br>
+            <b>Est. Landing Roll:</b> ${ldgDist} meters
+        </div>
+    `;
+}
+
+function convertValue() {
+    let mode = document.getElementById("convMode").value;
+    let val = Number(document.getElementById("convInput").value);
+    let out = document.getElementById("convOut");
+    if (document.getElementById("convInput").value === "") return out.innerHTML = "";
+    switch(mode) {
+        case "MachToKt": out.innerHTML = `= ${Math.round(val * 661.7)} Knots`; break;
+        case "KtToMach": out.innerHTML = `= ${(val / 661.7).toFixed(3)} Mach`; break;
+        case "KtToMph": out.innerHTML = `= ${(val * 1.15078).toFixed(1)} MPH`; break;
+        case "FtToM": out.innerHTML = `= ${(val * 0.3048).toFixed(1)} Meters`; break;
+        case "MToFt": out.innerHTML = `= ${(val / 0.3048).toFixed(1)} Feet`; break;
+        case "LbToKg": out.innerHTML = `= ${(val * 0.453592).toFixed(1)} kg`; break;
+        case "KgToLb": out.innerHTML = `= ${(val / 0.453592).toFixed(1)} lbs`; break;
+    }
+}
+
+function syncPressureFromHpa() {
+    let hpaVal = document.getElementById("utilHpa").value;
+    let inhgInput = document.getElementById("utilInhg");
+    if (hpaVal === "") return inhgInput.value = "";
+    inhgInput.value = (Number(hpaVal) / 33.8639).toFixed(2);
+}
+
+function syncPressureFromInhg() {
+    let inhgVal = document.getElementById("utilInhg").value;
+    let hpaInput = document.getElementById("utilHpa");
+    if (inhgVal === "") return hpaInput.value = "";
+    hpaInput.value = Math.round(Number(inhgVal) * 33.8639);
+}
+
+// ---- FIXED: Completed Save and Update Log Functions ----
+function saveFlightLog(plane, wt, tmp, v1, vr, v2, toDist) {
+    try {
+        let logs = localStorage.getItem("flightLog") ? JSON.parse(localStorage.getItem("flightLog")) : [];
+        logs.push({ aircraft: plane, weight: wt, temp: tmp, speeds: `V1: ${v1}/VR: ${vr}/V2: ${v2}`, distances: `TO: ${toDist}m` });
+        localStorage.setItem("flightLog", JSON.stringify(logs));
+        updateLogTable();
+    } catch(e) {}
+}
+
+function updateLogTable() {
+    try {
+        let logs = localStorage.getItem("flightLog") ? JSON.parse(localStorage.getItem("flightLog")) : [];
+        if(logs.length === 0) return document.getElementById("logOut").innerHTML = "<i>No flights logged yet.</i>";
+        
+        let html = `<table><tr><th>Aircraft</th><th>Weight</th><th>Temp</th><th>Speeds</th><th>Takeoff Dist</th></tr>`;
+        for (let i = 0; i < logs.length; i++) {
+            html += `<tr><td>${logs[i].aircraft}</td><td>${logs[i].weight} kg</td><td>${logs[i].temp} °C</td><td><b>${logs[i].speeds}</b></td><td>${logs[i].distances}</td></tr>`;
+        }
+        html += `</table>`;
+        document.getElementById("logOut").innerHTML = html;
+    } catch(e) {}
+}
+
+function clearLogs() {
+    localStorage.removeItem("flightLog");
+    updateLogTable();
+}
+</script>
+</head>
+<body>
+    <h2>✈️ Ultimate Aviation Performance Suite</h2>
+    
+    <div class="box">
+        <div class="section-title">1. Aircraft Selection</div>
+        <select id="airliners" onchange="updateAircraftInfo()"></select>
+        <div id="spot1"></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="box">
+            <div class="section-title">2. Live METAR & Wind Calculator</div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="icaoInput" placeholder="Enter ICAO (e.g. KJFK)" maxlength="4">
+                <button onclick="fetchAirportWeather()">Fetch</button>
+            </div>
+            <div id="metarStatus" style="font-size:13px; margin:5px 0;"></div>
+            <div id="metarRawBox"></div>
+            
+            <hr>
+            <div class="grid-2">
+                <div>Rwy Hdg (°): <input type="number" id="runwayHeading" oninput="calculateWindVectors()" placeholder="e.g. 270"></div>
+                <div>Wind Dir (°): <input type="number" id="windDirection" oninput="calculateWindVectors()"></div>
+                <div>Wind Spd (kt): <input type="number" id="windSpeed" oninput="calculateWindVectors()"></div>
+                <div>Temp (°C): <input type="number" id="howHot"></div>
+                <div style="grid-column: span 2">Pressure (hPa): <input type="number" id="pressureInput"></div>
+            </div>
+            <div id="windComponentOutput"></div>
+        </div>
+
+        <div class="box">
+            <div class="section-title">3. Payload & Weight Balance</div>
+            <div class="grid-2">
+                <div>Pax Count: <input type="number" id="paxCount" oninput="calculatePayload()"></div>
+                <div>Cargo (kg): <input type="number" id="cargoWeight" value="0" oninput="calculatePayload()"></div>
+                <div>Empty Wt (kg): <input type="number" id="emptyWeightWB" oninput="calculatePayload()"></div>
+                <div>Fuel Wt (kg): <input type="number" id="fuelWeightWB" value="0" oninput="calculateWeightBalance()"></div>
+            </div>
+            <div id="payloadOut" style="margin-top:10px; font-size:14px;"></div>
+            <div id="wbOut"></div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="box">
+            <div class="section-title">4. Dispatch Fuel Calculator</div>
+            <div class="grid-2">
+                <div>Trip Dist (km): <input type="number" id="tripDistance"></div>
+                <div>Gnd Speed (kt): <input type="number" id="groundSpeed" value="450"></div>
+                <div>Alt Dist (km): <input type="number" id="altDistance" value="300"></div>
+                <div>Extra Fuel (kg): <input type="number" id="extraFuelInput" value="500"></div>
+            </div>
+            <button onclick="calculateFuelBurn()">Calculate Dispatch Fuel</button>
+            <div id="fuelBurnOut"></div>
+        </div>
+
+        <div class="box">
+            <div class="section-title">5. Takeoff Performance</div>
+            <div>Takeoff Weight (kg): <input type="number" id="howHeavy" readonly style="background:#eef3f8;"></div>
+            <button onclick="calculateSpeeds()">Calculate V-Speeds & Distance</button>
+            <div id="speedsOut" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="section-title">6. Descent & Landing Calculator</div>
+        <div class="grid-3">
+            <div>Cruise Alt (ft): <input type="number" id="cruiseAlt" value="35000"></div>
+            <div>Target Alt (ft): <input type="number" id="targetAlt" value="3000"></div>
+            <div>Ground Spd (kt): <input type="number" id="descentGs" value="400"></div>
+            <div>Descent Rate (fpm): <input type="number" id="descentRate" value="2000"></div>
+            <div style="grid-column: span 2">Est. Landing Weight (kg): <input type="number" id="landingWeight" readonly style="background:#eef3f8;"></div>
+        </div>
+        <button onclick="calculateDescent()">Calculate Profile</button>
+        <div id="descentOut"></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="box">
+            <div class="section-title">Utilities & Converters</div>
+            <div class="grid-2">
+                <select id="convMode">
+                    <option value="LbToKg">Lbs to Kg</option>
+                    <option value="KgToLb">Kg to Lbs</option>
+                    <option value="FtToM">Feet to Meters</option>
+                    <option value="MToFt">Meters to Feet</option>
+                    <option value="MachToKt">Mach to Knots</option>
+                </select>
+                <div><input type="number" id="convInput" oninput="convertValue()" placeholder="Value..."></div>
+            </div>
+            <div id="convOut" style="font-weight:bold; color:#0056b3; margin-bottom: 10px;"></div>
+            <hr>
+            <div class="grid-2">
+                <div>Altimeter (hPa): <input type="number" id="utilHpa" oninput="syncPressureFromHpa()"></div>
+                <div>Altimeter (inHg): <input type="number" id="utilInhg" oninput="syncPressureFromInhg()"></div>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="section-title">Reference Database</div>
+            <input type="text" placeholder="Search aircraft..." oninput="renderReferenceTable(this.value)">
+            <div id="table" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="section-title">Flight Performance Log</div>
+            <button class="clear-btn" style="width: auto; padding: 5px 15px;" onclick="clearLogs()">Clear Logs</button>
+        </div>
+        <div id="logOut"></div>
+    </div>
+</body>
+</html>
