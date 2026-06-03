@@ -122,6 +122,7 @@
     }
     .clear-btn { background: #dc3545; }
     .clear-btn:hover { background: #c82333; }
+    label { font-size: 12px; font-weight: bold; color: #555; }
 </style>
 <script>
 const aircraftData = {
@@ -144,7 +145,6 @@ const aircraftData = {
     "Airbus A220-100": { category: "Narrow-body", passengers: 135, range: 6300, min: 35000, max: 60000, baseRoll: 1460, emptyWeight: 35220, maxPayload: 15120, avgBurnPerHour: 1600, cgEmpty: 21 },
     "Airbus A220-300": { category: "Narrow-body", passengers: 160, range: 6700, min: 37000, max: 63000, baseRoll: 1890, emptyWeight: 37080, maxPayload: 18730, avgBurnPerHour: 1800, cgEmpty: 22 },
 
-    // Boeing
     "Boeing 707": { category: "Classic Jet", passengers: 189, range: 6820, min: 88000, max: 151000, baseRoll: 3280, emptyWeight: 67300, maxPayload: 28000, avgBurnPerHour: 6200, cgEmpty: 25 },
     "Boeing 717": { category: "Narrow-body", passengers: 134, range: 3820, min: 39000, max: 50500, baseRoll: 1950, emptyWeight: 30600, maxPayload: 14500, avgBurnPerHour: 2100, cgEmpty: 23 },
     "Boeing 727-200": { category: "Narrow-body", passengers: 155, range: 4400, min: 45000, max: 95000, baseRoll: 2500, emptyWeight: 46700, maxPayload: 18100, avgBurnPerHour: 4300, cgEmpty: 24 },
@@ -160,22 +160,18 @@ const aircraftData = {
     "Boeing 777-300ER": { category: "Wide-body", passengers: 396, range: 13650, min: 167000, max: 351000, baseRoll: 3050, emptyWeight: 167800, maxPayload: 69800, avgBurnPerHour: 7500, cgEmpty: 27 },
     "Boeing 787-9": { category: "Wide-body", passengers: 296, range: 14140, min: 119000, max: 254000, baseRoll: 2800, emptyWeight: 115400, maxPayload: 52500, avgBurnPerHour: 4900, cgEmpty: 26 },
 
-    // Embraer
     "Embraer E170": { category: "Regional Jet", passengers: 72, range: 3900, min: 21000, max: 37000, baseRoll: 1644, emptyWeight: 21140, maxPayload: 9100, avgBurnPerHour: 1200, cgEmpty: 20 },
     "Embraer E175": { category: "Regional Jet", passengers: 76, range: 4000, min: 22000, max: 38000, baseRoll: 2244, emptyWeight: 21810, maxPayload: 10080, avgBurnPerHour: 1300, cgEmpty: 20 },
     "Embraer E190": { category: "Regional Jet", passengers: 100, range: 4500, min: 28000, max: 51000, baseRoll: 2044, emptyWeight: 28080, maxPayload: 13080, avgBurnPerHour: 1700, cgEmpty: 21 },
 
-    // Bombardier / CRJ
     "Bombardier CRJ-200": { category: "Regional Jet", passengers: 50, range: 3100, min: 14000, max: 24000, baseRoll: 1900, emptyWeight: 14000, maxPayload: 6100, avgBurnPerHour: 1100, cgEmpty: 19 },
     "Bombardier CRJ-700": { category: "Regional Jet", passengers: 78, range: 2500, min: 20000, max: 34000, baseRoll: 1600, emptyWeight: 20000, maxPayload: 8500, avgBurnPerHour: 1500, cgEmpty: 20 },
     "Bombardier CRJ-900": { category: "Regional Jet", passengers: 90, range: 2800, min: 21000, max: 38000, baseRoll: 1770, emptyWeight: 21500, maxPayload: 10350, avgBurnPerHour: 1650, cgEmpty: 20 },
 
-    // McDonnell Douglas
     "McDonnell Douglas MD-80": { category: "Narrow-body", passengers: 155, range: 2900, min: 35000, max: 63000, baseRoll: 2200, emptyWeight: 35300, maxPayload: 17700, avgBurnPerHour: 3200, cgEmpty: 24 },
     "McDonnell Douglas MD-11": { category: "Wide-body", passengers: 298, range: 12200, min: 130000, max: 286000, baseRoll: 2900, emptyWeight: 130100, maxPayload: 52200, avgBurnPerHour: 7100, cgEmpty: 27 },
     "McDonnell Douglas DC-10": { category: "Wide-body", passengers: 250, range: 9600, min: 108000, max: 259000, baseRoll: 2700, emptyWeight: 108900, maxPayload: 46200, avgBurnPerHour: 7400, cgEmpty: 26 },
 
-    // Turboprops
     "ATR 42-600": { category: "Turboprop", passengers: 48, range: 1300, min: 10000, max: 18600, baseRoll: 1100, emptyWeight: 11700, maxPayload: 5300, avgBurnPerHour: 650, cgEmpty: 18 },
     "ATR 72-600": { category: "Turboprop", passengers: 70, range: 1500, min: 13000, max: 23000, baseRoll: 1300, emptyWeight: 13500, maxPayload: 7500, avgBurnPerHour: 800, cgEmpty: 19 },
     "De Havilland Dash 8-Q400": { category: "Turboprop", passengers: 78, range: 2000, min: 17000, max: 29000, baseRoll: 1400, emptyWeight: 17800, maxPayload: 8600, avgBurnPerHour: 1100, cgEmpty: 19 }
@@ -474,7 +470,6 @@ function calculateFuelBurn() {
     calculateWeightBalance(); 
 }
 
-// ---- NEW: Descent & Landing Calculator ----
 function calculateDescent() {
     let cruise = Number(document.getElementById("cruiseAlt").value) || 35000;
     let target = Number(document.getElementById("targetAlt").value) || 3000;
@@ -504,21 +499,95 @@ function calculateDescent() {
 }
 
 function convertValue() {
-    let mode = document.getElementById("convMode").value;
-    let val = Number(document.getElementById("convInput").value);
-    let out = document.getElementById("convOut");
-    if (document.getElementById("convInput").value === "") return out.innerHTML = "";
-    switch(mode) {
-        case "MachToKt": out.innerHTML = `= ${Math.round(val * 661.7)} Knots`; break;
-        case "KtToMach": out.innerHTML = `= ${(val / 661.7).toFixed(3)} Mach`; break;
-        case "KtToMph": out.innerHTML = `= ${(val * 1.15078).toFixed(1)} MPH`; break;
-        case "FtToM": out.innerHTML = `= ${(val * 0.3048).toFixed(1)} Meters`; break;
-        case "MToFt": out.innerHTML = `= ${(val / 0.3048).toFixed(1)} Feet`; break;
-        case "LbToKg": out.innerHTML = `= ${(val * 0.453592).toFixed(1)} kg`; break;
-        case "KgToLb": out.innerHTML = `= ${(val / 0.453592).toFixed(1)} lbs`; break;
-    }
-}
 
+    const value = Number(document.getElementById("inputValue").value);
+    const mode = document.getElementById("convMode").value;
+    const resultBox = document.getElementById("convResult");
+
+    if (isNaN(value) || document.getElementById("inputValue").value === "") {
+        resultBox.innerHTML = "Please enter a value.";
+        return;
+    }
+
+    let result;
+    let unit;
+
+    switch(mode) {
+
+        case "MachToKt":
+            result = value * 661.47;
+            unit = " knots";
+            break;
+
+        case "KtToMach":
+            result = value / 661.47;
+            unit = " Mach";
+            break;
+
+        case "KtToMph":
+            result = value * 1.15078;
+            unit = " mph";
+            break;
+
+        case "FtToM":
+            result = value * 0.3048;
+            unit = " meters";
+            break;
+
+        case "MToFt":
+            result = value * 3.28084;
+            unit = " feet";
+            break;
+
+        case "LbToKg":
+            result = value * 0.453592;
+            unit = " kg";
+            break;
+
+        case "KgToLb":
+            result = value * 2.20462;
+            unit = " lbs";
+            break;
+
+        case "NmToSm":
+            result = value * 1.15078;
+            unit = " statute miles";
+            break;
+
+        case "SmToNm":
+            result = value / 1.15078;
+            unit = " nautical miles";
+            break;
+
+        case "NmToKm":
+            result = value * 1.852;
+            unit = " km";
+            break;
+
+        case "KmToNm":
+            result = value / 1.852;
+            unit = " nautical miles";
+            break;
+
+        case "SmToKm":
+            result = value * 1.60934;
+            unit = " km";
+            break;
+
+        case "KmToSm":
+            result = value / 1.60934;
+            unit = " statute miles";
+            break;
+
+        default:
+            resultBox.innerHTML = "Conversion not found.";
+            return;
+    }
+
+    resultBox.innerHTML =
+        `<h3>Result</h3>${result.toFixed(4)} ${unit}`;
+}
+  
 function syncPressureFromHpa() {
     let hpaVal = document.getElementById("utilHpa").value;
     let inhgInput = document.getElementById("utilInhg");
@@ -533,7 +602,6 @@ function syncPressureFromInhg() {
     hpaInput.value = Math.round(Number(inhgVal) * 33.8639);
 }
 
-// ---- FIXED: Completed Save and Update Log Functions ----
 function saveFlightLog(plane, wt, tmp, v1, vr, v2, toDist) {
     try {
         let logs = localStorage.getItem("flightLog") ? JSON.parse(localStorage.getItem("flightLog")) : [];
@@ -561,6 +629,187 @@ function clearLogs() {
     localStorage.removeItem("flightLog");
     updateLogTable();
 }
+const definitions = {
+    // Airspeed & Altitude
+    "IAS": "Indicated Airspeed – The speed shown on the aircraft's airspeed indicator.",
+    "CAS": "Calibrated Airspeed – Indicated airspeed corrected for instrument and position errors.",
+    "EAS": "Equivalent Airspeed – Calibrated airspeed corrected for compressibility effects.",
+    "TAS": "True Airspeed – The aircraft's actual speed through the air.",
+    "GS": "Ground Speed – The aircraft's speed relative to the ground.",
+    "Mach Number": "The ratio of an aircraft's speed to the speed of sound.",
+    "Pressure Altitude": "Altitude indicated when the altimeter is set to standard pressure.",
+    "True Altitude": "Actual height above mean sea level.",
+    "AGL": "Above Ground Level – Height measured above the terrain directly below.",
+    "MSL": "Mean Sea Level – Standard aviation altitude reference.",
+    "Flight Envelope": "The range of speeds, altitudes, and maneuvers in which an aircraft can operate safely.",
+    "Coffin Corner": "High-altitude region where stall speed and critical Mach number become very close.",
+
+    // Flight Controls
+    "Ailerons": "Movable surfaces on the wings that control roll.",
+    "Elevator": "Flight control surface that controls pitch.",
+    "Rudder": "Vertical tail control surface that controls yaw.",
+    "Flaps": "Wing devices used to increase lift and drag.",
+    "Slats": "Leading-edge devices that improve low-speed performance.",
+    "Spoilers": "Panels that reduce lift and increase drag.",
+    "Speed Brakes": "Devices used to slow the aircraft by increasing drag.",
+    "Trim": "Adjustment that reduces pilot control pressure.",
+    "Yoke": "Control wheel used by pilots to fly the aircraft.",
+    "Sidestick": "Side-mounted flight controller used on some aircraft.",
+
+    // Jet Engines
+    "N1": "Fan speed expressed as a percentage of maximum RPM.",
+    "N2": "Core compressor speed expressed as a percentage of maximum RPM.",
+    "EGT": "Exhaust Gas Temperature – Temperature of gases leaving the engine.",
+    "EPR": "Engine Pressure Ratio – Ratio used to measure jet engine thrust.",
+    "Thrust Reverser": "System that redirects engine thrust forward after landing.",
+    "Bleed Air": "Compressed air taken from the engine compressor section.",
+    "Compressor Stall": "Disruption of airflow through a jet engine compressor.",
+    "Flameout": "Loss of combustion inside an engine.",
+    "Spool-Up Time": "Time required for a jet engine to accelerate.",
+
+    // Airline Operations
+    "Gate Hold": "A delay imposed by air traffic control that keeps an aircraft at the gate before engine start.",
+    "Pushback": "The procedure where a tug moves an aircraft backward away from an airport gate.",
+    "Turnaround": "The time required to unload an aircraft, service it, reload it, and depart again.",
+    "Block Time": "The total time from the moment an aircraft first moves under its own power until it comes to a final stop at the gate.",
+    "Block Out": "The exact moment an aircraft releases its parking brakes and pushes back from the gate.",
+    "Block In": "The exact moment an aircraft sets its parking brakes upon arriving at the gate.",
+    "Hub Airport": "An airport used by an airline as a transfer point to coordinate flights and passengers.",
+    "Focus City": "An airport that serves as a significant destination for an airline, but with fewer connecting flights than a main hub.",
+    "Code Share": "A marketing arrangement where an airline places its designator code on a flight operated by another airline.",
+    "Load Sheet": "A document containing the total weight and distribution data for an aircraft prior to departure.",
+    "Weight and Balance": "Calculations performed to ensure the aircraft's weight does not exceed safety limits and its center of gravity is stable.",
+    "Operational Control": "The exercise of authority over initiating, conducting, or terminating a flight.",
+    "Revenue Passenger": "A commercial passenger who paid a financial fare for their ticket.",
+    "Non-Revenue Passenger": "An airline employee, dependent, or travel industry professional flying on a free or heavily discounted pass.",
+    "Jumpseat": "An auxiliary seat in the cockpit or cabin used by flight crew members or authorized observers.",
+
+    // Instrument Approaches
+    "ILS": "Instrument Landing System – Precision landing aid using radio signals.",
+    "Localizer": "Part of the ILS that provides lateral (left/right) guidance to the runway centerline.",
+    "Glideslope": "Part of the ILS that provides vertical (up/down) guidance along the correct descent angle.",
+    "CAT I": "A standard instrument approach with a decision height not lower than 200 feet.",
+    "CAT II": "A precision instrument approach with a decision height lower than 200 feet but not lower than 100 feet.",
+    "CAT III": "An advanced precision approach allowing operation down to the runway surface in zero or near-zero visibility.",
+    "RNAV Approach": "Instrument approach using area navigation calculations (such as GPS) rather than ground-based beacons.",
+    "RNP Approach": "An RNAV approach requiring onboard system performance monitoring and alerting capabilities.",
+    "LPV Approach": "Localizer Performance with Vertical Guidance – An approach utilizing highly accurate GPS/WAAS signals to simulate an ILS.",
+    "Visual Approach": "An approach conducted under instrument flight rules but where the pilot completes the landing via visual reference to the terrain.",
+    "Missed Approach": "A safe procedure executed by a pilot when an instrument approach cannot be completed to a landing.",
+    "FAF": "Final Approach Fix – The point in space where the final descent segment of an instrument approach begins.",
+
+    // Airport Lighting
+    "PAPI": "Precision Approach Path Indicator – A system of lights next to the runway showing whether a pilot is high, low, or on the correct glidepath.",
+    "VASI": "Visual Approach Slope Indicator – An older configurations of tiered lights providing visual glideslope guidance.",
+    "REIL": "Runway End Identifier Lights – A pair of synchronized flashing lights located on each side of the runway threshold.",
+    "MALSR": "Medium Intensity Approach Lighting System with Runway Alignment Indicator Lights – A configurations of ground lights guiding aircraft toward the runway in low visibility.",
+    "Centerline Lights": "In-paved white lights down the exact center of a runway, changing to red/white near the end.",
+    "Touchdown Zone Lights": "Rows of white light bars installed in the runway surface to mark the ideal landing zone.",
+    "Threshold Lights": "Green lights across the beginning of the usable runway surface that turn red when approached from the opposite direction.",
+    "Runway Edge Lights": "White lights running down the edges of the runway boundaries.",
+    "Taxiway Centerline Lights": "Steady-burning green lights installed along the center of a taxiway.",
+    "Stop Bar Lights": "A row of red lights embedded across a taxiway that ATC turns off to signal permission to enter a runway.",
+
+    // Airspace
+    "Class A Airspace": "Controlled airspace extending from 18,000 feet MSL up to 60,000 feet (FL600), requiring IFR flight plans.",
+    "Class B Airspace": "Highly controlled airspace surrounding the nation's busiest airports, shaped like an upside-down wedding cake.",
+    "Class C Airspace": "Controlled airspace surrounding moderately busy airports with an operational control tower and radar services.",
+    "Class D Airspace": "Controlled airspace surrounding smaller airports with an operational control tower but no mandatory radar service.",
+    "Class E Airspace": "Controlled airspace that fills the gaps between other defined airspaces, usually starting at 700 or 1,200 feet AGL.",
+    "Class G Airspace": "Uncontrolled airspace where air traffic control has no authority or responsibility for separation.",
+    "MOA": "Military Operations Area – Airspace designated for non-hazardous military training activities; VFR civilian flights can enter but should exercise caution.",
+    "TFR": "Temporary Flight Restriction – A short-term restriction on a specific geographic area due to hazards, VIP travel, or special events.",
+    "Restricted Area": "Airspace where flight operations are subject to strict limitations due to hidden hazards like artillery firing or missile testing.",
+    "Prohibited Area": "Airspace within which flight is completely forbidden due to national security concerns (e.g., over the White House).",
+    "ADIZ": "Air Defense Identification Zone – An area of airspace over land or water within which early identification and tracking of aircraft are required for national security.",
+
+    // Emergencies
+    "Emergency Descent": "A rapid maneuver executed to bring an aircraft down safely to a lower altitude following a structural issue or loss of cabin pressure.",
+    "Ditching": "A planned emergency landing of an aircraft on water.",
+    "Rejected Takeoff": "An aborted takeoff roll executed prior to reaching decision speed (V1).",
+    "Engine Failure": "The mechanical failure or unexpected shutdown of an aircraft powerplant during operation.",
+    "Bird Strike": "A collision between an airborne animal (usually a bird) and an aircraft.",
+    "Hydraulic Failure": "The loss of pressure or fluid in the systems that control flight surfaces, landing gear, or brakes.",
+    "Electrical Failure": "The total or partial loss of generated electricity, forcing dependence on backup batteries or emergency power sources.",
+    "Fuel Emergency": "A condition where an aircraft's remaining usable fuel supply dictates immediate landing priority.",
+    "Cabin Depressurization": "An event where the interior atmospheric pressure of the cabin drops to match the outside atmosphere.",
+    "Evacuation": "The emergency exiting of an aircraft using all available exits and escape slides.",
+
+    // Modern Aviation Technology
+    "ADS-B": "Automatic Dependent Surveillance-Broadcast – Technology where an aircraft determines its position via satellite navigation and periodically broadcasts it.",
+    "CPDLC": "Controller Pilot Data Link Communications – A text-based system allowing pilots and controllers to transmit clearances and requests directly to flight displays.",
+    "ACARS": "Aircraft Communications Addressing and Reporting System – A digital datalink system for transmitting short messages between aircraft and ground stations.",
+    "EFB": "Electronic Flight Bag – An electronic display device (like an iPad) used by flight crews to manage digital navigation charts, manuals, and performance calculations.",
+    "Synthetic Vision": "A computer-generated 3D display that recreates external terrain, obstacles, and runways on flight instrumentation regardless of outside visibility.",
+    "HUD": "Head-Up Display – A transparent display that presents critical flight data directly in the pilot's forward line of sight.",
+    "EVS": "Enhanced Vision System – A system that displays real-time imagery of the outside environment using thermal or infrared sensors.",
+    "Autoland": "An automation system that completely handles the approach, flare, touchdown, and rollout phases of landing.",
+    "Autothrottle": "A system that automatically adjusts the engines to maintain a targeted airspeed or thrust setting.",
+
+    // Meteorology
+    "Dew Point": "Temperature at which moisture condenses.",
+    "Altimeter Setting": "Pressure value used to calibrate an altimeter.",
+    "QNH": "Pressure setting showing altitude above sea level.",
+    "QFE": "Pressure setting showing altitude above airport elevation.",
+    "QNE": "Standard pressure setting of 29.92 inHg.",
+    "Convective Activity": "Atmospheric instability causing thunderstorms.",
+    "Cumulonimbus": "Thunderstorm cloud.",
+    "Virga": "Precipitation that evaporates before reaching the ground.",
+    "Jet Stream": "High-speed winds in the upper atmosphere.",
+    "Frontal System": "Boundary between air masses.",
+    "Freezing Level": "Altitude where temperature reaches 0°C.",
+    "Wake Turbulence": "Air disturbance generated by another aircraft.",
+
+    // Pilot Callouts
+    "V1": "Decision speed during takeoff.",
+    "VR": "Rotation speed.",
+    "V2": "Takeoff safety speed.",
+    "Positive Rate": "Confirmation that the aircraft is climbing.",
+    "Gear Up": "Command to retract landing gear.",
+    "Approaching Minimums": "Alert before decision altitude.",
+    "Minimums": "Decision altitude reached.",
+    "Retard": "Callout to reduce thrust during landing.",
+    "Spoilers Deployed": "Confirmation that spoilers have extended.",
+    "80 Knots": "Standard takeoff roll callout.",
+    "100 Knots": "Takeoff roll speed callout.",
+
+    // Flight Tracking
+    "Tail Number": "The unique alphanumeric identifier painted on an aircraft, functioning like a license plate.",
+    "Registration": "The official national entry proving legal ownership and operating domain for a specific aircraft.",
+    "Hex Code": "A unique 24-bit binary identifier assigned to an aircraft's Mode S transponder for tracking.",
+    "Callsign": "The designation used to identify an aircraft in radio communications (e.g., 'Speedbird 215' or 'November 4-2-3-Alpha-Golf').",
+    "Livery": "The specific paint scheme, logo, and design profile applied to an aircraft's exterior by an airline.",
+    "Position Report": "A standard message sent by an aircraft to air traffic control containing location, time, altitude, and next waypoint progress.",
+    "Track Log": "A sequential list of historical data coordinates tracking an aircraft's completed altitude, speed, and location changes.",
+    "ACARS Message": "A digital payload string containing automated flight phase logs, mechanical parameters, or text requests.",
+    "Dispatch Route": "The legally approved, optimal flight path calculated by an airline dispatcher before a flight begins.",
+    "Route String": "A shorthand sequence of waypoints, airways, and terminal procedures defining a flight path (e.g., KLAX HOLMM3 MISEN...KSFO).",
+    "Oceanic Clearance": "Specialized authorization required to enter non-radar oceanic airspace sections along a specific track and speed profile.",
+    "Slot Time": "A strict, designated departure or arrival window assigned by air traffic control to regulate flow into congested areas."
+};
+
+function showDefinition() {
+    const selectedTerm = document.getElementById("aviationTerm").value;
+    const definitionBox = document.getElementById("definitionBox");
+
+    if (selectedTerm === "") {
+        definitionBox.innerHTML = "Select an aviation term to see its definition.";
+        return;
+    }
+
+    const termData = definitions[selectedTerm];
+
+    if (termData) {
+        if (termData.includes(" – ")) {
+            const parts = termData.split(" – ");
+            definitionBox.innerHTML = "<strong>" + parts[0] + "</strong><br><br>" + parts[1];
+        } else {
+            definitionBox.innerHTML = "<strong>" + selectedTerm + "</strong><br><br>" + termData;
+        }
+    } else {
+        definitionBox.innerHTML = "<strong>" + selectedTerm + "</strong><br><br>Definition not yet added.";
+    }
+}
 </script>
 </head>
 <body>
@@ -583,12 +832,19 @@ function clearLogs() {
             <div id="metarRawBox"></div>
             
             <hr>
+            
             <div class="grid-2">
-                <div>Rwy Hdg (°): <input type="number" id="runwayHeading" oninput="calculateWindVectors()" placeholder="e.g. 270"></div>
-                <div>Wind Dir (°): <input type="number" id="windDirection" oninput="calculateWindVectors()"></div>
-                <div>Wind Spd (kt): <input type="number" id="windSpeed" oninput="calculateWindVectors()"></div>
-                <div>Temp (°C): <input type="number" id="howHot"></div>
-                <div style="grid-column: span 2">Pressure (hPa): <input type="number" id="pressureInput"></div>
+                <div>
+                    <label>Runway Heading (°):</label>
+                    <input type="number" id="runwayHeading" placeholder="e.g. 270" oninput="calculateWindVectors()">
+                </div>
+                <div>
+                    <label>Wind Dir / Speed (Kt):</label>
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="windDirection" placeholder="Dir" oninput="calculateWindVectors()">
+                        <input type="number" id="windSpeed" placeholder="Kt" oninput="calculateWindVectors()">
+                    </div>
+                </div>
             </div>
             <div id="windComponentOutput"></div>
         </div>
@@ -596,84 +852,343 @@ function clearLogs() {
         <div class="box">
             <div class="section-title">3. Payload & Weight Balance</div>
             <div class="grid-2">
-                <div>Pax Count: <input type="number" id="paxCount" oninput="calculatePayload()"></div>
-                <div>Cargo (kg): <input type="number" id="cargoWeight" value="0" oninput="calculatePayload()"></div>
-                <div>Empty Wt (kg): <input type="number" id="emptyWeightWB" oninput="calculatePayload()"></div>
-                <div>Fuel Wt (kg): <input type="number" id="fuelWeightWB" value="0" oninput="calculateWeightBalance()"></div>
+                <div>
+                    <label>Empty Weight (kg):</label>
+                    <input type="number" id="emptyWeightWB" oninput="calculateWeightBalance()">
+                </div>
+                <div>
+                    <label>Passengers:</label>
+                    <input type="number" id="paxCount" oninput="calculatePayload()">
+                </div>
+                <div>
+                    <label>Cargo (kg):</label>
+                    <input type="number" id="cargoWeight" placeholder="0" oninput="calculatePayload()">
+                </div>
+                <div>
+                    <label>Block Fuel (kg):</label>
+                    <input type="number" id="fuelWeightWB" placeholder="0" oninput="calculateWeightBalance()">
+                </div>
             </div>
-            <div id="payloadOut" style="margin-top:10px; font-size:14px;"></div>
+            <div id="payloadOut" style="margin-top:10px; font-size:13px;"></div>
             <div id="wbOut"></div>
+            <input type="hidden" id="howHeavy">
+            <input type="hidden" id="landingWeight">
         </div>
     </div>
 
     <div class="grid-2">
         <div class="box">
-            <div class="section-title">4. Dispatch Fuel Calculator</div>
+            <div class="section-title">4. Flight Plan & Fuel Burn</div>
             <div class="grid-2">
-                <div>Trip Dist (km): <input type="number" id="tripDistance"></div>
-                <div>Gnd Speed (kt): <input type="number" id="groundSpeed" value="450"></div>
-                <div>Alt Dist (km): <input type="number" id="altDistance" value="300"></div>
-                <div>Extra Fuel (kg): <input type="number" id="extraFuelInput" value="500"></div>
+                <div>
+                    <label>Trip Dist (nm):</label>
+                    <input type="number" id="tripDistance" placeholder="Distance">
+                </div>
+                <div>
+                    <label>Ground Speed (kt):</label>
+                    <input type="number" id="groundSpeed" value="450">
+                </div>
+                <div>
+                    <label>Alt. Dist (nm):</label>
+                    <input type="number" id="altDistance" placeholder="Alternate">
+                </div>
+                <div>
+                    <label>Taxi Fuel (kg):</label>
+                    <input type="number" id="taxiFuelInput" value="200">
+                </div>
+                <div>
+                    <label>Holding (min):</label>
+                    <input type="number" id="holdingMinInput" value="30">
+                </div>
+                <div>
+                    <label>Extra Fuel (kg):</label>
+                    <input type="number" id="extraFuelInput" placeholder="0">
+                </div>
             </div>
-            <button onclick="calculateFuelBurn()">Calculate Dispatch Fuel</button>
+            <button onclick="calculateFuelBurn()" style="margin-top:10px;">Calculate Fuel</button>
             <div id="fuelBurnOut"></div>
         </div>
 
         <div class="box">
-            <div class="section-title">5. Takeoff Performance</div>
-            <div>Takeoff Weight (kg): <input type="number" id="howHeavy" readonly style="background:#eef3f8;"></div>
-            <button onclick="calculateSpeeds()">Calculate V-Speeds & Distance</button>
-            <div id="speedsOut" style="margin-top: 10px;"></div>
+            <div class="section-title">5. Takeoff Performance (V-Speeds)</div>
+            <div class="grid-2">
+                <div>
+                    <label>Temp (°C):</label>
+                    <input type="number" id="howHot" placeholder="15">
+                </div>
+                <div>
+                    <label>Pressure (hPa):</label>
+                    <input type="number" id="pressureInput" placeholder="1013">
+                </div>
+            </div>
+            <p style="font-size:12px; color:#555;"><i>(Weight & Wind inputs sync automatically from Sections 2 & 3)</i></p>
+            <button onclick="calculateSpeeds()">Calculate V-Speeds</button>
+            <div id="speedsOut" style="margin-top:10px;"></div>
         </div>
-    </div>
-
-    <div class="box">
-        <div class="section-title">6. Descent & Landing Calculator</div>
-        <div class="grid-3">
-            <div>Cruise Alt (ft): <input type="number" id="cruiseAlt" value="35000"></div>
-            <div>Target Alt (ft): <input type="number" id="targetAlt" value="3000"></div>
-            <div>Ground Spd (kt): <input type="number" id="descentGs" value="400"></div>
-            <div>Descent Rate (fpm): <input type="number" id="descentRate" value="2000"></div>
-            <div style="grid-column: span 2">Est. Landing Weight (kg): <input type="number" id="landingWeight" readonly style="background:#eef3f8;"></div>
-        </div>
-        <button onclick="calculateDescent()">Calculate Profile</button>
-        <div id="descentOut"></div>
     </div>
 
     <div class="grid-2">
         <div class="box">
-            <div class="section-title">Utilities & Converters</div>
+            <div class="section-title">6. Descent & Landing</div>
             <div class="grid-2">
-                <select id="convMode">
-                    <option value="LbToKg">Lbs to Kg</option>
-                    <option value="KgToLb">Kg to Lbs</option>
+                <div>
+                    <label>Cruise Alt (ft):</label>
+                    <input type="number" id="cruiseAlt" value="35000">
+                </div>
+                <div>
+                    <label>Target Alt (ft):</label>
+                    <input type="number" id="targetAlt" value="3000">
+                </div>
+                <div>
+                    <label>Descent GS (kt):</label>
+                    <input type="number" id="descentGs" value="400">
+                </div>
+                <div>
+                    <label>Rate (fpm):</label>
+                    <input type="number" id="descentRate" value="2000">
+                </div>
+            </div>
+            <button onclick="calculateDescent()" style="margin-top:10px;">Calculate Top of Descent</button>
+            <div id="descentOut"></div>
+        </div>
+
+        <section id="converter">
+    <div class="box">
+        <div class="section-title">7. Aviation Unit Converter</div>
+
+        <div class="input-group">
+            <input type="number" id="inputValue" placeholder="Enter value">
+
+            <select id="convMode">
+                <optgroup label="Speed">
+                    <option value="MachToKt">Mach to Knots</option>
+                    <option value="KtToMach">Knots to Mach</option>
+                    <option value="KtToMph">Knots to MPH</option>
+                </optgroup>
+
+                <optgroup label="Altitude / Short Distance">
                     <option value="FtToM">Feet to Meters</option>
                     <option value="MToFt">Meters to Feet</option>
-                    <option value="MachToKt">Mach to Knots</option>
-                </select>
-                <div><input type="number" id="convInput" oninput="convertValue()" placeholder="Value..."></div>
-            </div>
-            <div id="convOut" style="font-weight:bold; color:#0056b3; margin-bottom: 10px;"></div>
-            <hr>
-            <div class="grid-2">
-                <div>Altimeter (hPa): <input type="number" id="utilHpa" oninput="syncPressureFromHpa()"></div>
-                <div>Altimeter (inHg): <input type="number" id="utilInhg" oninput="syncPressureFromInhg()"></div>
-            </div>
+                </optgroup>
+
+                <optgroup label="Weight">
+                    <option value="LbToKg">Lbs to Kg</option>
+                    <option value="KgToLb">Kg to Lbs</option>
+                </optgroup>
+
+                <optgroup label="Long Distance">
+                    <option value="NmToSm">Nautical Miles to Statute Miles</option>
+                    <option value="SmToNm">Statute Miles to Nautical Miles</option>
+                    <option value="NmToKm">Nautical Miles to Kilometers</option>
+                    <option value="KmToNm">Kilometers to Nautical Miles</option>
+                    <option value="SmToKm">Statute Miles to Kilometers</option>
+                    <option value="KmToSm">Kilometers to Statute Miles</option>
+                </optgroup>
+            </select>
+
+            <button onclick="convertValue()">Convert</button>
         </div>
 
-        <div class="box">
-            <div class="section-title">Reference Database</div>
-            <input type="text" placeholder="Search aircraft..." oninput="renderReferenceTable(this.value)">
-            <div id="table" style="max-height: 200px; overflow-y: auto;"></div>
-        </div>
+        <div id="convResult"></div>
+    </div>
+</section>
+                
+                <div>
+                    <label>Altimeter Sync:</label>
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="utilHpa" placeholder="hPa (e.g. 1013)" oninput="syncPressureFromHpa()">
+                        <input type="number" id="utilInhg" placeholder="inHg (e.g. 29.92)" oninput="syncPressureFromInhg()">
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <div class="box">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="section-title">Flight Performance Log</div>
-            <button class="clear-btn" style="width: auto; padding: 5px 15px;" onclick="clearLogs()">Clear Logs</button>
+    <div class="aviation-glossary-container" style="max-width: 500px; margin: 20px auto; padding: 20px; font-family: sans-serif; border: 1px solid #ccc; border-radius: 5px; background: #fff;">
+        <div class="dropdown-group" style="margin-bottom: 20px;">
+            <label for="aviationTerm" style="display: block; font-weight: bold; margin-bottom: 8px;">
+                Select an Aviation Term:
+            </label>
+            
+            <select id="aviationTerm" onchange="showDefinition()" style="width: 100%; padding: 10px; font-size: 16px; border-radius: 4px;">
+                <option value="">-- Select an Aviation Term --</option>
+
+                <optgroup label="Airspeed & Altitude">
+                    <option value="IAS">IAS (Indicated Airspeed)</option>
+                    <option value="CAS">CAS (Calibrated Airspeed)</option>
+                    <option value="EAS">EAS (Equivalent Airspeed)</option>
+                    <option value="TAS">TAS (True Airspeed)</option>
+                    <option value="GS">GS (Ground Speed)</option>
+                    <option value="Mach Number">Mach Number</option>
+                    <option value="Pressure Altitude">Pressure Altitude</option>
+                    <option value="True Altitude">True Altitude</option>
+                    <option value="AGL">AGL (Above Ground Level)</option>
+                    <option value="MSL">MSL (Mean Sea Level)</option>
+                    <option value="Flight Envelope">Flight Envelope</option>
+                    <option value="Coffin Corner">Coffin Corner</option>
+                </optgroup>
+
+                <optgroup label="Flight Controls">
+                    <option value="Ailerons">Ailerons</option>
+                    <option value="Elevator">Elevator</option>
+                    <option value="Rudder">Rudder</option>
+                    <option value="Flaps">Flaps</option>
+                    <option value="Slats">Slats</option>
+                    <option value="Spoilers">Spoilers</option>
+                    <option value="Speed Brakes">Speed Brakes</option>
+                    <option value="Trim">Trim</option>
+                    <option value="Yoke">Yoke</option>
+                    <option value="Sidestick">Sidestick</option>
+                </optgroup>
+
+                <optgroup label="Jet Engine Terms">
+                    <option value="N1">N1</option>
+                    <option value="N2">N2</option>
+                    <option value="EGT">EGT</option>
+                    <option value="EPR">EPR</option>
+                    <option value="Thrust Reverser">Thrust Reverser</option>
+                    <option value="Bleed Air">Bleed Air</option>
+                    <option value="Compressor Stall">Compressor Stall</option>
+                    <option value="Flameout">Flameout</option>
+                    <option value="Spool-Up Time">Spool-Up Time</option>
+                </optgroup>
+
+                <optgroup label="Airline Operations">
+                    <option value="Gate Hold">Gate Hold</option>
+                    <option value="Pushback">Pushback</option>
+                    <option value="Turnaround">Turnaround</option>
+                    <option value="Block Time">Block Time</option>
+                    <option value="Block Out">Block Out</option>
+                    <option value="Block In">Block In</option>
+                    <option value="Hub Airport">Hub Airport</option>
+                    <option value="Focus City">Focus City</option>
+                    <option value="Code Share">Code Share</option>
+                    <option value="Load Sheet">Load Sheet</option>
+                    <option value="Weight and Balance">Weight and Balance</option>
+                    <option value="Operational Control">Operational Control</option>
+                    <option value="Revenue Passenger">Revenue Passenger</option>
+                    <option value="Non-Revenue Passenger">Non-Revenue Passenger</option>
+                    <option value="Jumpseat">Jumpseat</option>
+                </optgroup>
+
+                <optgroup label="Instrument Approaches">
+                    <option value="ILS">ILS</option>
+                    <option value="Localizer">Localizer</option>
+                    <option value="Glideslope">Glideslope</option>
+                    <option value="CAT I">CAT I</option>
+                    <option value="CAT II">CAT II</option>
+                    <option value="CAT III">CAT III</option>
+                    <option value="RNAV Approach">RNAV Approach</option>
+                    <option value="RNP Approach">RNP Approach</option>
+                    <option value="LPV Approach">LPV Approach</option>
+                    <option value="Visual Approach">Visual Approach</option>
+                    <option value="Missed Approach">Missed Approach</option>
+                    <option value="FAF">FAF (Final Approach Fix)</option>
+                </optgroup>
+
+                <optgroup label="Airport Lighting">
+                    <option value="PAPI">PAPI</option>
+                    <option value="VASI">VASI</option>
+                    <option value="REIL">REIL</option>
+                    <option value="MALSR">MALSR</option>
+                    <option value="Centerline Lights">Centerline Lights</option>
+                    <option value="Touchdown Zone Lights">Touchdown Zone Lights</option>
+                    <option value="Threshold Lights">Threshold Lights</option>
+                    <option value="Runway Edge Lights">Runway Edge Lights</option>
+                    <option value="Taxiway Centerline Lights">Taxiway Centerline Lights</option>
+                    <option value="Stop Bar Lights">Stop Bar Lights</option>
+                </optgroup>
+
+                <optgroup label="Airspace">
+                    <option value="Class A Airspace">Class A Airspace</option>
+                    <option value="Class B Airspace">Class B Airspace</option>
+                    <option value="Class C Airspace">Class C Airspace</option>
+                    <option value="Class D Airspace">Class D Airspace</option>
+                    <option value="Class E Airspace">Class E Airspace</option>
+                    <option value="Class G Airspace">Class G Airspace</option>
+                    <option value="MOA">MOA</option>
+                    <option value="TFR">TFR</option>
+                    <option value="Restricted Area">Restricted Area</option>
+                    <option value="Prohibited Area">Prohibited Area</option>
+                    <option value="ADIZ">ADIZ</option>
+                </optgroup>
+
+                <optgroup label="Emergencies">
+                    <option value="Emergency Descent">Emergency Descent</option>
+                    <option value="Ditching">Ditching</option>
+                    <option value="Rejected Takeoff">Rejected Takeoff (RTO)</option>
+                    <option value="Engine Failure">Engine Failure</option>
+                    <option value="Bird Strike">Bird Strike</option>
+                    <option value="Hydraulic Failure">Hydraulic Failure</option>
+                    <option value="Electrical Failure">Electrical Failure</option>
+                    <option value="Fuel Emergency">Fuel Emergency</option>
+                    <option value="Cabin Depressurization">Cabin Depressurization</option>
+                    <option value="Evacuation">Evacuation</option>
+                </optgroup>
+
+                <optgroup label="Modern Aviation Technology">
+                    <option value="ADS-B">ADS-B</option>
+                    <option value="CPDLC">CPDLC</option>
+                    <option value="ACARS">ACARS</option>
+                    <option value="EFB">Electronic Flight Bag (EFB)</option>
+                    <option value="Synthetic Vision">Synthetic Vision</option>
+                    <option value="HUD">Head-Up Display (HUD)</option>
+                    <option value="EVS">Enhanced Vision System (EVS)</option>
+                    <option value="Autoland">Autoland</option>
+                    <option value="Autothrottle">Autothrottle</option>
+                </optgroup>
+
+                <optgroup label="Meteorology">
+                    <option value="Dew Point">Dew Point</option>
+                    <option value="Altimeter Setting">Altimeter Setting</option>
+                    <option value="QNH">QNH</option>
+                    <option value="QFE">QFE</option>
+                    <option value="QNE">QNE</option>
+                    <option value="Convective Activity">Convective Activity</option>
+                    <option value="Cumulonimbus">Cumulonimbus (CB)</option>
+                    <option value="Virga">Virga</option>
+                    <option value="Jet Stream">Jet Stream</option>
+                    <option value="Frontal System">Frontal System</option>
+                    <option value="Freezing Level">Freezing Level</option>
+                    <option value="Wake Turbulence">Wake Turbulence</option>
+                </optgroup>
+
+                <optgroup label="Pilot Callouts">
+                    <option value="V1">V1</option>
+                    <option value="VR">VR</option>
+                    <option value="V2">V2</option>
+                    <option value="Positive Rate">Positive Rate</option>
+                    <option value="Gear Up">Gear Up</option>
+                    <option value="Approaching Minimums">Approaching Minimums</option>
+                    <option value="Minimums">Minimums</option>
+                    <option value="Retard">Retard</option>
+                    <option value="Spoilers Deployed">Spoilers Deployed</option>
+                    <option value="80 Knots">80 Knots</option>
+                    <option value="100 Knots">100 Knots</option>
+                </optgroup>
+
+                <optgroup label="Flight Tracking & Enthusiast Terms">
+                    <option value="Tail Number">Tail Number</option>
+                    <option value="Registration">Registration</option>
+                    <option value="Hex Code">Hex Code</option>
+                    <option value="Callsign">Callsign</option>
+                    <option value="Livery">Livery</option>
+                    <option value="Position Report">Position Report</option>
+                    <option value="Track Log">Track Log</option>
+                    <option value="ACARS Message">ACARS Message</option>
+                    <option value="Dispatch Route">Dispatch Route</option>
+                    <option value="Route String">Route String</option>
+                    <option value="Oceanic Clearance">Oceanic Clearance</option>
+                    <option value="Slot Time">Slot Time</option>
+                </optgroup>
+            </select>
         </div>
-        <div id="logOut"></div>
+
+        <div id="definitionBox" style="padding: 15px; border-left: 4px solid #0056b3; background-color: #f0f4f8; min-height: 60px; font-size: 14px; color: #333;">
+            Select an aviation term to see its definition.
+        </div>
     </div>
+</body>
+
 </body>
 </html>
